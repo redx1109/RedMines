@@ -1,0 +1,493 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(150deg,#545654, #cdcede);
+    text-align: center;
+}
+
+html, body {
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+}
+
+h1 {
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(64px, 16vw, 140px);
+    color: #303038;
+}
+
+h2 {
+    font-size: clamp(16px, 2vw, 28px);
+    color: #303038;
+}
+
+#stats {
+    font-size: 3vw;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    position: fixed;
+    top: 10px;
+    left: 0;
+    right: 0;
+    z-index: 5;
+}
+
+#playbtn {
+    margin-top: 2vh;
+    background-color: #303038;
+    color: white;
+    height: clamp(45px, 5vw, 70px);
+    width: clamp(140px, 10vw, 220px);
+    font-size: clamp(18px, 3vw, 28px);
+    border: none;
+    border-radius: 20px;
+    transition: transform 0.3s;
+    box-shadow: 0 0 15px #202028;
+}
+
+
+#playbtn:hover {
+    background-color: #505058;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+.cell {
+    width: var(--cell-size, 5vmin);
+    height: var(--cell-size, 5vmin);
+    background: #444;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    font-size: calc(var(--cell-size, 5vmin) * 0.45);
+    transition: transform 0.15s, background 0.2s;
+}
+
+.cell:hover {
+    transform: scale(1.08);
+}
+
+.cell.revealed {
+    background: #ddd;
+    color: #222;
+    animation: reveal 0.25s ease;
+}
+
+@keyframes reveal {
+    0% {
+        transform: scale(0.7);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: #1a1a2e;
+    color: white;
+    padding: clamp(18px, 4vw, 30px) clamp(24px, 6vw, 50px);
+    border-radius: 16px;
+    font-size: clamp(18px, 5vw, 28px);
+    font-weight: bold;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    opacity: 0;
+    max-width: 90vw;
+    width: fit-content;
+}
+
+.msgBtns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#message.show {
+    display: flex;
+    animation: popIn 0.4s ease forwards;
+}
+
+@keyframes popIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+}
+
+#restartBtn {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: #303038;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#restartBtn:hover {
+    background: #505058;
+}
+
+#gameArea {
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+}
+
+#stats {
+    align-self: center;
+}
+
+#gameArea.show {
+    display: flex;
+    min-height: 100dvh;
+    align-items: stretch;
+}
+
+#stats span {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #444;
+    padding: 8px 12px;
+    border-radius: 10px;
+}
+
+.cell[data-n="1"]{color:#2b6fd6}
+.cell[data-n="2"]{color:#2e8b57}
+.cell[data-n="3"]{color:#d6392b}
+.cell[data-n="4"]{color:#1a1a6e}
+.cell[data-n="5"]{color:#7a2e2e}
+.cell[data-n="6"]{color:#2e8b8b}
+.cell[data-n="7"]{color:#1a1a1a}
+.cell[data-n="8"]{color:#707070}
+.cell.flagged{background:#ffffff}
+#menuBtn{margin-top:15px;margin-left:10px;padding:8px 20px;background:#303038;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
+#menuBtn:hover{background:#505058}
+
+#difficulty,#bigDifficulty{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: #303038;
+    padding: 25px 35px;
+    border-radius: 16px;
+    margin: 30px auto;
+    width: fit-content;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+
+h1 {
+    text-shadow: 0 0 30px rgba(48,48,56,0.3);
+    animation: floatIn 0.8s ease;
+}
+
+@keyframes floatIn {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    opacity: 0.7;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+body {
+    background: linear-gradient(150deg, #545654, #cdcede);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.bgIcons {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.bgIcons span {
+    position: absolute;
+    opacity: 0.9;
+    animation: drift 18s linear infinite;
+}
+
+.mine {
+    width: 28px;
+    height: 28px;
+    background: #303038;
+    border-radius: 50%;
+    box-shadow:
+        0 -14px 0 -8px #303038, 0 14px 0 -8px #303038,
+        -14px 0 0 -8px #303038, 14px 0 0 -8px #303038,
+        -10px -10px 0 -9px #303038, 10px -10px 0 -9px #303038,
+        -10px 10px 0 -9px #303038, 10px 10px 0 -9px #303038;
+}
+
+.flag {
+    width: 4px;
+    height: 26px;
+    background: #303038;
+}
+
+.flag::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 4px;
+    width: 16px;
+    height: 12px;
+    background: #d6392b;
+    clip-path: polygon(0 0, 100% 25%, 0 50%);
+}
+
+.bgIcons span:nth-child(1){ left: 5%; top: 100%; animation-delay: 0s; }
+.bgIcons span:nth-child(2){ left: 10%; top: 100%; animation-delay: 2s; }
+.bgIcons span:nth-child(3){ left: 40%; top: 100%; animation-delay: 5s; }
+.bgIcons span:nth-child(4){ left: 60%; top: 100%; animation-delay: 8s; }
+.bgIcons span:nth-child(5){ left: 80%; top: 100%; animation-delay: 3s; }
+.bgIcons span:nth-child(6){ left: 92%; top: 100%; animation-delay: 10s; }
+.bgIcons span:nth-child(7){ left: 15%; top: 100%; animation-delay: 12s; }
+.bgIcons span:nth-child(8){ left: 30%; top: 100%; animation-delay: 6s; }
+.bgIcons span:nth-child(9){ left: 50%; top: 100%; animation-delay: 14s; }
+.bgIcons span:nth-child(10){ left: 70%; top: 100%; animation-delay: 1s; }
+.bgIcons span:nth-child(11){ left: 85%; top: 100%; animation-delay: 9s; }
+.bgIcons span:nth-child(12){ left: 95%; top: 100%; animation-delay: 4s; }
+
+@keyframes drift {
+    0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+    10% { opacity: 0.35; }
+    70% { opacity: 0.35; transform: translateY(-75vh) rotate(280deg) scale(1); }
+    78% { opacity: 1; transform: translateY(-82vh) rotate(300deg) scale(3); box-shadow: 0 0 30px 10px rgba(214,57,43,0.6); }
+    90% { opacity: 0; transform: translateY(-85vh) rotate(300deg) scale(4); }
+    100% { opacity: 0; transform: translateY(-85vh) rotate(300deg) scale(4); }
+}
+
+#modeSelect {
+    display: none;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 5vh;
+}
+
+.modeCard {
+    background: #303038;
+    color: white;
+    padding: 50px 35px;
+    border-radius: 20px;
+    width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.modeCard h3 {
+    font-size: 24px;
+}
+
+.modeCard p {
+    font-size: 15px;
+}
+
+.modeCard:hover {
+    transform: scale(1.05);
+    background: #505058;
+}
+
+.modeCard {
+    background: #303038;
+    color: white;
+    padding: 50px 35px;
+    border-radius: 20px;
+    width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+#boardWrapper {
+    width: 100vw;
+    flex: 1;
+    overflow: hidden;
+    margin: 0;
+    cursor: grab;
+    position: relative;
+}
+
+#boardWrapper.dragging {
+    cursor: grabbing;
+}
+
+#board {
+    position: relative;
+    display: grid;
+    grid-gap: 3px;
+    width: fit-content;
+    margin: 0 auto;
+}
+.sizePicker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.sizePicker button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 10px;
+    background: #444;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.sizePicker button:hover {
+    background: #555;
+}
+
+.sizePicker button.active {
+    background: #d6392b;
+    transform: scale(1.05);
+}
+
+.styledBtn {
+    margin-top: 10px;
+    padding: 12px 30px;
+    background: #303038;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.styledBtn:hover {
+    background: #505058;
+    transform: scale(1.05);
+}
+
+#difficulty input,
+#bigDifficulty input {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    background: #eee;
+    color: #222;
+    font-size: 16px;
+    font-weight: bold;
+    width: 100px;
+    text-align: center;
+}
+
+#difficulty label,
+#bigDifficulty label {
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+.backBtn {
+    background: transparent;
+    color: #303038;
+    border: none;
+    text-shadow: #1a1a1a 0 0 20px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 20;
+}
+
+.backBtn:hover {
+    background: #444;
+}
+
+@media (max-width: 600px) {
+    #modeSelect {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modeCard {
+        width: 80vw;
+        padding: 30px 25px;
+    }
+
+    #difficulty,
+    #bigDifficulty {
+        width: 85vw;
+    }
+
+    .sizePicker {
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .sizePicker button {
+        width: 100%;
+    }
+
+    .styledBtn {
+        width: 100%;
+    }
+}
