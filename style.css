@@ -206,7 +206,7 @@ h2 {
 #menuBtn{margin-top:15px;margin-left:10px;padding:8px 20px;background:#303038;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
 #menuBtn:hover{background:#505058}
 
-#difficulty,#bigDifficulty{
+#difficulty,#bigDifficulty,#cubeDifficulty,#tessDifficulty{
     display: none;
     flex-direction: column;
     align-items: center;
@@ -423,7 +423,9 @@ body {
 }
 
 #difficulty input,
-#bigDifficulty input {
+#bigDifficulty input,
+#cubeDifficulty input,
+#tessDifficulty input {
     padding: 10px 14px;
     border: none;
     border-radius: 10px;
@@ -436,7 +438,9 @@ body {
 }
 
 #difficulty label,
-#bigDifficulty label {
+#bigDifficulty label,
+#cubeDifficulty label,
+#tessDifficulty label {
     color: white;
     font-size: 15px;
     font-weight: bold;
