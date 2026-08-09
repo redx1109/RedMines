@@ -12,6 +12,18 @@ let currentMode = 'classic';
 const modeConfigs = {};
 let cubeZoom = 1;
 let TIMES = 1, currentTime = 0;
+let shiftHeld = false;
+let holdTouchActive = false;
+let flagMode = false;   
+window.addEventListener('keydown', (e) => { if (e.key === 'Shift') shiftHeld = true; });
+window.addEventListener('keyup', (e) => { if (e.key === 'Shift') shiftHeld = false; });
+
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length >= 1) holdTouchActive = true;
+}, {passive:true});
+document.addEventListener('touchend', (e) => {
+    if (e.touches.length === 0) holdTouchActive = false;
+}, {passive:true});
 
 function registerMode(name, fn) { modeConfigs[name] = fn; }
 
@@ -40,6 +52,11 @@ function playSound(name) { sounds[name].currentTime = 0; sounds[name].play().cat
 
 document.getElementById('menuBtn').addEventListener('click', () => location.reload());
 document.getElementById('restartBtn').addEventListener('click', startGame);
+document.getElementById('flagModeBtn')?.addEventListener('click', (e) => {
+    flagMode = !flagMode;
+    e.target.classList.toggle('active', flagMode);
+    e.target.textContent = flagMode ? '🚩 On' : '🚩 Off';
+});
 const globalBack = document.getElementById('globalBackBtn');
 
 globalBack.addEventListener('click', () => {
@@ -201,22 +218,29 @@ function buildCell(container, i) {
     else if (cell.revealed && cell.count > 0) content = cell.count;
     else if (!cell.revealed && cell.flagged) content = '🚩';
     if (cell.revealed && cell.count > 0) div.dataset.n = cell.count;
-    ['front','back','left','right','top','bottom'].forEach(face => {
-        const f = document.createElement('div');
-        f.className = `cubeFace face-${face}`;
-        f.textContent = content;
-        if (content && cell.revealed && cell.count > 0) f.dataset.n = cell.count;
-        div.appendChild(f);
-    });
+    if (is3D) {
+        ['front','back','left','right','top','bottom'].forEach(face => {
+            const f = document.createElement('div');
+            f.className = `cubeFace face-${face}`;
+            f.textContent = content;
+            if (content && cell.revealed && cell.count > 0) f.dataset.n = cell.count;
+            div.appendChild(f);
+        });
+    } else {
+        div.textContent = content;
+        if (cell.revealed && cell.count > 0) div.dataset.n = cell.count;
+    }
     div.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleFlag(i); });
     let pressTimer, longPressed = false;
-    div.addEventListener('touchstart', () => {
+    div.addEventListener('touchstart', (e) => {
+        if (e.touches.length >= 2) { toggleFlag(i); longPressed = true; return; }
         longPressed = false;
         pressTimer = setTimeout(() => { toggleFlag(i); longPressed = true; }, 450);
     });
     div.addEventListener('touchend', () => clearTimeout(pressTimer));
     div.addEventListener('click', () => {
         if (longPressed) { longPressed = false; return; }
+        if (flagMode || shiftHeld) { toggleFlag(i); return; }
         if (board[i].revealed && board[i].count > 0) chord(i);
         else { revealCellData(i); renderBoard(); checkWin(); }
     });
