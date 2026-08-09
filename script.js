@@ -194,13 +194,13 @@ function renderBoard() {
     DEPTH_GAP = firstLayer.querySelector('.cell').offsetWidth;
 
     const centerOffset = ((LAYERS-1) * DEPTH_GAP) / 2;
-    firstLayer.style.transform = `translateZ(${-centerOffset}px)`;
+    firstLayer.style.transform = `translate(-50%, -50%) translateZ(${-centerOffset}px)`;
     for (let l = 1; l < LAYERS; l++) {
         const layerDiv = document.createElement('div');
         layerDiv.className = 'layerGrid';
         layerDiv.style.gridTemplateColumns = gridCols;
         const z = l * DEPTH_GAP - centerOffset;
-        layerDiv.style.transform = `translateZ(${z}px)`;
+        layerDiv.style.transform = `translate(-50%, -50%) translateZ(${z}px)`;
         for (let domI = 0; domI < per; domI++) buildCell(layerDiv, l*per + domI);
         boardEl.appendChild(layerDiv);
     }
