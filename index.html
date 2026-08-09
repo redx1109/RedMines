@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Mines</title>
+    <title>Red Mines - 3D Minesweeper Online | Classic, Big World & 3D Modes</title>
+    <meta name="description" content="Play Red Mines, a free online Minesweeper game with Classic, Big World, and 3D layered modes. No download, mobile-friendly, streak tracking.">
+    <meta name="keywords" content="minesweeper, 3d minesweeper, online minesweeper, free minesweeper game, red mines, big minesweeper, minesweeper unblocked">
+    <meta property="og:title" content="Red Mines - 3D Minesweeper Online">
+    <meta property="og:description" content="Classic Minesweeper reimagined with Big World and 3D layered modes. Play free in your browser.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://redmines.vercel.app">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://redmines.vercel.app">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
@@ -29,6 +37,14 @@
             <div class="modeCard" id="bigWorldCard">
                 <h3>Big World</h3>
                 <p>Huge grids, scroll to explore</p>
+            </div>
+            <div class="modeCard" id="cubeCard">
+                <h3>3D</h3>
+                <p>Stacked layers, dig through floors</p>
+            </div>
+            <div class="modeCard" id="tessCard">
+                <h3>4D</h3>
+                <p>Cube through time itself</p>
             </div>
         </div>
 
@@ -57,16 +73,40 @@
             </label>
             <button id="bigStartBtn" class="styledBtn">Start</button>
         </div>
-
+        <div id="cubeDifficulty" style="display: none;">
+            <div class="sizePicker" id="cubeGridSizePicker" data-value="6">
+                <button type="button" data-val="4">4×4×4</button>
+                <button type="button" data-val="6" class="active">6×6×6</button>
+                <button type="button" data-val="8">8×8×8</button>
+            </div>
+            <label>Mines: 
+                <input type="number" id="cubeMineCount" value="25" min="5" max="200">
+            </label>
+            <button id="cubeStartBtn" class="styledBtn">Start</button>
+        </div>
+        <div id="tessDifficulty" style="display: none;">
+            <div class="sizePicker" id="tessGridSizePicker" data-value="5">
+                <button type="button" data-val="4">4×4×4</button>
+                <button type="button" data-val="5" class="active">5×5×5</button>
+                <button type="button" data-val="6">6×6×6</button>
+            </div>
+            <label>Mines: 
+                <input type="number" id="tessMineCount" value="30" min="5" max="300">
+            </label>
+            <button id="tessStartBtn" class="styledBtn">Start</button>
+        </div>
         <button id="playbtn">Play</button>
         <div id="gameArea">
             <div id="stats">
                 <span id="streak">🔥 0</span>
                 <span id="timer">⏱ 0:00</span>
                 <span id="minesLeft">💣 15</span>
+                <span id="layerNav" style="display:none;">🏢 <span id="layerLabel">Floor 1</span></span>
+                <span id="timeNav" style="display:none;">🕐 <span id="timeLabel">Time A</span> <button id="timeFlip" type="button">Flip</button></span>
             </div>
             <div id="boardWrapper">
                 <div id="board"></div>
+                <div id="boardGhost"></div>
             </div>
         </div>
         <div id="message">
@@ -78,5 +118,9 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="classic.js"></script>
+    <script src="world.js"></script>
+    <script src="3d.js"></script>
+    <script src="4d.js"></script>
 </body>
 </html>
