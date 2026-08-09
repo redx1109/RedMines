@@ -717,3 +717,10 @@ body {
         margin: 30px auto;
     }
 }
+
+#boardWrapper.mode3D .cell.revealed {
+    pointer-events: none;
+}
+#boardWrapper.mode3D .cell.revealed .cubeFace {
+    pointer-events: none;
+}
