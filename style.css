@@ -629,8 +629,7 @@ body {
 .face-top   { transform: rotateX(90deg) translateZ(calc(var(--cell-size, 5vmin) / 2)); }
 .face-bottom{ transform: rotateX(-90deg) translateZ(calc(var(--cell-size, 5vmin) / 2)); }
 #boardWrapper.mode3D .cell.revealed { animation: none; }
-#boardWrapper.mode3D .cell.revealed .cubeFace { background: rgba(200,200,200,0.55); }
-#boardWrapper.mode3D .cell.revealed:not([data-n]) .cubeFace { background: rgba(120,120,120,0.55); }
+#boardWrapper.mode3D .cell.revealed .cubeFace { background: transparent; border-color: transparent; }
 
 .cubeFace[data-n="1"]{color:#2b6fd6 !important}
 .cubeFace[data-n="2"]{color:#2e8b57 !important}
