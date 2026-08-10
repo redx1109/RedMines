@@ -286,6 +286,7 @@ body {
 }
 
 .flag {
+    position: relative;
     width: 4px;
     height: 26px;
     background: #303038;
@@ -641,6 +642,14 @@ body {
 .cubeFace[data-n="8"]{color:#707070 !important}
 .cubeFace[data-n]:not([data-n="1"]):not([data-n="2"]):not([data-n="3"]):not([data-n="4"]):not([data-n="5"]):not([data-n="6"]):not([data-n="7"]):not([data-n="8"]) {
     color: #d600ff !important;
+}
+
+.modeHint {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.6;
+    font-style: italic;
 }
 
 @media (max-width: 600px) {
