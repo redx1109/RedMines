@@ -122,12 +122,12 @@ function startGame() {
     document.querySelector('#playbtn').style.display = 'none';
     document.getElementById('board').style.transform = 'translate(0px, 0px)';
     document.getElementById('gameArea').classList.add('show');
-    board = Array(ROWS*COLS*LAYERS).fill(0).map(() => ({mine:false, revealed:false, count:0}));
+    board = Array(ROWS*COLS*LAYERS*TIMES).fill(0).map(() => ({mine:false, revealed:false, count:0}));
     renderBoard();
 }
 
 function placeMines(exclude) {
-    const total = ROWS*COLS*LAYERS;
+    const total = ROWS*COLS*LAYERS*TIMES;
     let minePositions = new Set();
     while (minePositions.size < MINES) {
         const pos = Math.floor(Math.random() * total);
@@ -141,19 +141,24 @@ function placeMines(exclude) {
 }
 
 function getNeighbors(i) {
+    const perTime = ROWS*COLS*LAYERS;
     const per = ROWS*COLS;
-    const layer = Math.floor(i / per);
-    const rem = i % per;
+    const time = Math.floor(i / perTime);
+    const remT = i % perTime;
+    const layer = Math.floor(remT / per);
+    const rem = remT % per;
     const row = Math.floor(rem / COLS);
     const col = rem % COLS;
     let neighbors = [];
-    for (let dl = -1; dl <= 1; dl++) {
-        for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-                if (dl === 0 && dr === 0 && dc === 0) continue;
-                const l = layer+dl, r = row+dr, c = col+dc;
-                if (l >= 0 && l < LAYERS && r >= 0 && r < ROWS && c >= 0 && c < COLS) {
-                    neighbors.push(l*per + r*COLS + c);
+    for (let dt = -1; dt <= 1; dt++) {
+        for (let dl = -1; dl <= 1; dl++) {
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dt === 0 && dl === 0 && dr === 0 && dc === 0) continue;
+                    const t = time+dt, l = layer+dl, r = row+dr, c = col+dc;
+                    if (t >= 0 && t < TIMES && l >= 0 && l < LAYERS && r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                        neighbors.push(t*perTime + l*per + r*COLS + c);
+                    }
                 }
             }
         }
@@ -186,10 +191,11 @@ function renderBoard() {
     }
 
     boardEl.style.display = 'block';
+    const timeOffset = currentTime * ROWS*COLS*LAYERS;
     const firstLayer = document.createElement('div');
     firstLayer.className = 'layerGrid';
     firstLayer.style.gridTemplateColumns = gridCols;
-    for (let domI = 0; domI < per; domI++) buildCell(firstLayer, domI);
+    for (let domI = 0; domI < per; domI++) buildCell(firstLayer, timeOffset + domI);
     boardEl.appendChild(firstLayer);
     DEPTH_GAP = firstLayer.querySelector('.cell').offsetWidth;
 
@@ -201,10 +207,17 @@ function renderBoard() {
         layerDiv.style.gridTemplateColumns = gridCols;
         const z = l * DEPTH_GAP - centerOffset;
         layerDiv.style.transform = `translate(-50%, -50%) translateZ(${z}px)`;
-        for (let domI = 0; domI < per; domI++) buildCell(layerDiv, l*per + domI);
+        for (let domI = 0; domI < per; domI++) buildCell(layerDiv, timeOffset + l*per + domI);
         boardEl.appendChild(layerDiv);
     }
     applyCubeRotation();
+}
+
+function changeTime(dir) {
+    if (TIMES <= 1 || gameOver) return;
+    currentTime = Math.max(0, Math.min(TIMES-1, currentTime + dir));
+    document.getElementById('timeLabel').textContent = currentTime === 0 ? 'Time A' : 'Time B';
+    renderBoard();
 }
 
 function buildCell(container, i) {
