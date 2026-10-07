@@ -15,6 +15,7 @@ let TIMES = 1, currentTime = 0;
 let shiftHeld = false;
 let holdTouchActive = false;
 let flagMode = false;   
+let moved = false;
 window.addEventListener('keydown', (e) => { if (e.key === 'Shift') shiftHeld = true; });
 window.addEventListener('keyup', (e) => { if (e.key === 'Shift') shiftHeld = false; });
 
@@ -22,6 +23,7 @@ document.addEventListener('touchstart', (e) => {
     if (e.touches.length >= 1) holdTouchActive = true;
 }, {passive:true});
 document.addEventListener('touchend', (e) => {
+    div.addEventListener('touchmove', () => clearTimeout(pressTimer));
     if (e.touches.length === 0) holdTouchActive = false;
 }, {passive:true});
 
@@ -36,10 +38,10 @@ function wireSizePicker(id, mineInputId) {
             btn.classList.add('active');
             picker.dataset.value = btn.dataset.val;
             const size = parseInt(btn.dataset.val);
-            mineInput.value = Math.round(size * size * 0.3);
+            mineInput.value = Math.round(size * size * 0.15);
         });
     });
-    mineInput.value = Math.round(parseInt(picker.dataset.value) ** 2 * 0.3);
+    mineInput.value = Math.round(parseInt(picker.dataset.value) ** 2 * 0.15);
 }
 
 const sounds = {
@@ -101,6 +103,8 @@ function startGame() {
     document.getElementById('streak').textContent = `🔥 ${streak}`;
 
     modeConfigs[currentMode]();
+    const maxMines = ROWS*COLS*LAYERS*TIMES - 3**((is3D ? 3 : 2) + (TIMES > 1 ? 1 : 0));
+    MINES = Math.max(1, Math.min(MINES || 10, maxMines));
 
     gameOver = false;
     timer = 0;
@@ -126,17 +130,72 @@ function startGame() {
     renderBoard();
 }
 
-function placeMines(exclude) {
-    const total = ROWS*COLS*LAYERS*TIMES;
-    let minePositions = new Set();
-    while (minePositions.size < MINES) {
-        const pos = Math.floor(Math.random() * total);
-        if (!exclude.has(pos)) minePositions.add(pos);
+function solveSim(mines, start, nb) {
+    const total = mines.length, st = new Uint8Array(total), cnt = new Uint8Array(total);
+    for (let i = 0; i < total; i++) if (!mines[i]) { let c = 0; for (const n of nb[i]) c += mines[n]; cnt[i] = c; }
+    let safeLeft = total - MINES;
+    const rev = [];
+    const open = (s) => {
+        const stack = [s];
+        while (stack.length) {
+            const i = stack.pop();
+            if (st[i]) continue;
+            st[i] = 1; safeLeft--;
+            if (cnt[i] === 0) { for (const n of nb[i]) if (!st[n]) stack.push(n); }
+            else rev.push(i);
+        }
+    };
+    open(start);
+    let progress = true;
+    while (progress && safeLeft > 0) {
+        progress = false;
+        const cons = [];
+        for (const i of rev) {
+            const U = []; let mc = 0;
+            for (const n of nb[i]) { if (st[n] === 0) U.push(n); else if (st[n] === 2) mc++; }
+            if (!U.length) continue;
+            const rem = cnt[i] - mc;
+            if (rem === 0) { U.forEach(open); progress = true; }
+            else if (rem === U.length) { U.forEach(n => st[n] = 2); progress = true; }
+            else cons.push({ U, rem, S: new Set(U) });
+        }
+        if (progress) continue;
+        const byCell = new Map();
+        cons.forEach((c, k) => c.U.forEach(u => { if (!byCell.has(u)) byCell.set(u, []); byCell.get(u).push(k); }));
+        for (let a = 0; a < cons.length && !progress; a++) {
+            const A = cons[a];
+            for (const b of byCell.get(A.U[0])) {
+                const B = cons[b];
+                if (b === a || B.U.length <= A.U.length || !A.U.every(u => B.S.has(u))) continue;
+                const diff = B.U.filter(u => !A.S.has(u)), d = B.rem - A.rem;
+                if (d === 0) { diff.forEach(open); progress = true; break; }
+                if (d === diff.length) { diff.forEach(n => st[n] = 2); progress = true; break; }
+            }
+        }
     }
-    minePositions.forEach(i => board[i].mine = true);
+    return safeLeft;
+}
+
+function placeMines(exclude, start) {
+    const total = ROWS*COLS*LAYERS*TIMES;
+    const nb = Array.from({length: total}, (_, i) => getNeighbors(i));
+    const free = [];
+    for (let i = 0; i < total; i++) if (!exclude.has(i)) free.push(i);
+    let best = null, bestLeft = Infinity;
+    const t0 = Date.now();
+    do {
+        const mines = new Uint8Array(total);
+        for (let k = 0; k < MINES; k++) {
+            const j = k + Math.floor(Math.random() * (free.length - k));
+            [free[k], free[j]] = [free[j], free[k]];
+            mines[free[k]] = 1;
+        }
+        const left = solveSim(mines, start, nb);
+        if (left < bestLeft) { bestLeft = left; best = mines; }
+    } while (bestLeft > 0 && Date.now() - t0 < (TIMES > 1 ? 100 : 400));
+    best.forEach((m, i) => board[i].mine = !!m);
     board.forEach((cell, i) => {
-        if (cell.mine) return;
-        cell.count = getNeighbors(i).filter(n => board[n].mine).length;
+        if (!cell.mine) cell.count = nb[i].filter(n => board[n].mine).length;
     });
 }
 
@@ -276,7 +335,7 @@ function revealCellData(i) {
     if (board[i].revealed || board[i].flagged || gameOver) return;
     if (firstClick) {
         firstClick = false;
-        placeMines(new Set([i, ...getNeighbors(i)]));
+        placeMines(new Set([i, ...getNeighbors(i)]), i);
     }
     board[i].revealed = true;
     playSound('click');
@@ -338,6 +397,7 @@ function enablePan() {
     wrapper.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
         isDown = true;
+        moved = false;
         wrapper.classList.add('dragging');
         startX = e.clientX;
         startY = e.clientY;
@@ -349,6 +409,7 @@ function enablePan() {
         const dy = e.clientY - startY;
         startX = e.clientX;
         startY = e.clientY;
+        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
         if (is3D) {
             rotY += dx * 0.4;
             rotX -= dy * 0.4;
@@ -360,6 +421,7 @@ function enablePan() {
             boardEl.style.transform = `translate(${scrollX}px, ${scrollY}px)`;
         }
     });
+    wrapper.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); moved = false; } }, true);
     let touchX, touchY, pinchDist = 0;
     wrapper.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
